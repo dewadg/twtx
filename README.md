@@ -2,6 +2,9 @@
 
 GraphQL API for fetching tweets (For learning purpose).
 
+![Screen Recording 2019-10-05 at 00 42 33 2019-10-05 00_51_49](https://user-images.githubusercontent.com/3234011/66228978-ff465780-e70a-11e9-99ef-5b6209391e94.gif)
+
+
 ### Environment
 
 Can be seen at `.env.example`:
