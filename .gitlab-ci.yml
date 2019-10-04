@@ -1,0 +1,23 @@
+stages:
+  - build
+
+variables:
+  CONTAINER_REGISTRY: registry.gitlab.com/dewadg/twtx
+
+build:
+  stage: build
+  image: docker
+  services:
+    - docker:dind
+  variables:
+    DOCKER_HOST: tcp://docker:2375/
+    DOCKER_DRIVER: overlay2
+  before_script:
+    - docker version
+    - mkdir -p $GOPATH/src/github.com/dewadg/mots-api
+    - cp -R $(pwd)/* $GOPATH/src/github.com/dewadg/mots-api
+  script:
+    - docker build . -t $CONTAINER_REGISTRY:latest
+  after_script:
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
+    - docker push $CONTAINER_REGISTRY:latest
