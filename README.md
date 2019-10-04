@@ -27,5 +27,5 @@ GraphQL endpoint is at `/query`.
 Run this command to build the Docker image:
 
 ```
-docker run -t dewadg/twtx
+docker build . -t dewadg/twtx
 ```
