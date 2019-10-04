@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/go-chi/chi/middleware"
+	"github.com/go-chi/cors"
 	"github.com/go-chi/render"
 
 	"github.com/dewadg/twtx/gql"
@@ -66,7 +67,18 @@ func initGQL() graphql.Schema {
 
 func initRouter(schema graphql.Schema) *chi.Mux {
 	router := chi.NewRouter()
+
+	cors := cors.New(cors.Options{
+		AllowedOrigins:   []string{"*"},
+		AllowedMethods:   []string{"GET", "POST", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type"},
+		ExposedHeaders:   []string{"Link"},
+		AllowCredentials: true,
+		MaxAge:           300,
+	})
+
 	router.Use(
+		cors.Handler,
 		render.SetContentType(render.ContentTypeJSON),
 		middleware.Logger,
 		middleware.StripSlashes,
