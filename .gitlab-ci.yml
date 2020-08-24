@@ -7,6 +7,8 @@ variables:
 build:
   stage: build
   image: docker
+  only:
+    - master
   services:
     - docker:dind
   variables:
@@ -21,3 +23,26 @@ build:
   after_script:
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
     - docker push $CONTAINER_REGISTRY:latest
+
+deploy:
+  stage: deploy
+  only:
+    - master
+  image: dewadg/deploy:1.0
+  variables:
+    CB_STACK: twtx
+  before_script:
+    - eval $(ssh-agent -s)
+    - echo "$SERVER_SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+  script:
+    - scp -o StrictHostKeyChecking=no swarm.yml $SERVER_USER@$SERVER_ADDRESS:~/deploy/$CB_STACK.yml
+    - scp -o StrictHostKeyChecking=no $ENV_FILE $SERVER_USER@$SERVER_ADDRESS:~/deploy/$CB_STACK.env
+    - |
+      ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_ADDRESS "
+        export CB_STACK=$CB_STACK
+        cd ~/deploy
+        docker stack deploy --compose-file $CB_STACK.yml --with-registry-auth CB_$CB_STACK
+        rm $CB_STACK.yml
+        rm $CB_STACK.env
+        exit
+      "
